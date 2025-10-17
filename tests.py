@@ -78,14 +78,14 @@ matcher_ratio = features.RatioFeatureMatcher()
 # TODO7 - SSD matching
 # ------------------------------
 # Step 1. SSD matcher를 이용해 두 이미지의 MOPS 디스크립터 매칭을 수행하시오.
-matches_ssd = matcher_ssd.__________(__________, __________)
+matches_ssd = matcher_ssd.matchFeatures(desc_mops_1, desc_mops_2)
 
 # Step 2. 거리(distance)를 기준으로 정렬하여 상위 150개의 매칭만 선택하시오.
-matches_ssd = sorted(matches_ssd, key=lambda x: x.__________)[:150]
+matches_ssd = sorted(matches_ssd, key=lambda x: x.distance)[:150]
 
 # Step 3. 매칭 결과를 시각화하여 PNG로 저장하시오.
 ssd_vis = cv2.drawMatches(
-    img1, d1, img2, d2, ________, None,
+    img1, d1, img2, d2, matches_ssd, None,
     matchColor=(0,255,0), singlePointColor=(255,0,0),
     flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
 )
@@ -96,14 +96,14 @@ print("✅ TODO7 (SSD) match result saved → results/TODO7_SSD_matches.png")
 # TODO8 - Ratio matching
 # ------------------------------
 # Step 1. Ratio matcher를 이용해 두 이미지의 MOPS 디스크립터 매칭을 수행하시오.
-matches_ratio = matcher_ratio.__________(__________, __________)
+matches_ratio = matcher_ratio.matchFeatures(desc_mops_1, desc_mops_2)
 
 # Step 2. distance를 기준으로 정렬하여 상위 150개의 매칭만 선택하시오.
-matches_ratio = sorted(matches_ratio, key=lambda x: x.__________)[:150]
+matches_ratio = sorted(matches_ratio, key=lambda x: x.distance)[:150]
 
 # Step 3. 매칭 결과를 시각화하여 PNG로 저장하시오.
 ratio_vis = cv2.drawMatches(
-    img1, d1, img2, d2, ________, None,
+    img1, d1, img2, d2, matches_ratio, None,
     matchColor=(0,255,0), singlePointColor=(255,0,0),
     flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
 )
@@ -111,3 +111,14 @@ cv2.imwrite("results/TODO8_Ratio_matches.png", ratio_vis)
 print("✅ TODO8 (Ratio) match result saved → results/TODO8_Ratio_matches.png")
 
 print("🎯 All TODO1–8 visualizations done! Files saved in 'results/'")
+
+"""
+[Ratio matching이 더 잘된 이유]
+SSD 방식은 가장 가까운 점 하나만 선택하기 때문에, 반복되거나 모호한 특징에서는 잘못 매칭될 위험이 크다. 
+반면 Ratio matching은 가장 가까운 점과 두 번째로 가까운 점의 거리 비율을 비교하여, 
+비율이 작은(즉, 첫 번째 점이 두 번째 점보다 훨씬 가까운) 경우만 신뢰할 수 있는 매칭으로 간주한다. 
+따라서 Ratio matching은 잘못된 대응점을 효과적으로 제거하여 더 정확한 결과를 낸다. 
+
+결론적으로, Ratio matching 방식은 1순위로 가까운점과 2순위로 가까운 점과의 비율이 크면 
+애매하다고 판단해 버리고, 비율이 작으면 확실하다고 판단해 남겨 더 정확한 것이다.
+"""
